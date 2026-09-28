@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colegio Montano - Hoja de Trabajo: Tiro Parabólico</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- MathJax for LaTeX Rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- html2pdf.js for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      user-select: none; /* Prevents text selection to support anti-cheat */
+      -webkit-user-select: none;
+    }
+
+    /* Print and PDF tweaks */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: #ffffff;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+
+    textarea {
+      resize: none;
+      overflow-y: hidden;
+      min-height: 80px;
+    }
+
+    /* Custom Toast Notification */
+    #toast-restriction {
+      transition: all 0.3s ease-in-out;
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    #toast-restriction.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-6 md:p-10 relative">
+
+  <!-- Barra Flotante Superior (no-print) -->
+  <div class="no-print fixed top-4 right-4 z-50 flex items-center gap-3 bg-slate-900/90 backdrop-blur-md text-white px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700">
+    <span class="text-xs font-medium text-slate-300 hidden sm:inline">
+      <i class="fa-solid fa-shield-halved text-amber-400 mr-1"></i> Control Anti-Copia Activo
+    </span>
+    <button onclick="exportToPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-all shadow-md flex items-center gap-2">
+      <i class="fa-solid fa-file-pdf"></i>
+      <span>Descargar PDF</span>
+    </button>
+  </div>
+
+  <!-- Toast de Restricción Copiar/Pegar -->
+  <div id="toast-restriction" class="no-print fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-red-400 text-sm font-medium">
+    <i class="fa-solid fa-circle-exclamation text-xl text-amber-200"></i>
+    <span>Acción no permitida: No es posible copiar o pegar contenido en esta actividad. Solo se permite escritura directa.</span>
+  </div>
+
+  <!-- Envoltorio del Documento Printable -->
+  <div id="document-content" class="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden p-6 sm:p-8 md:p-10 my-4">
+
+    <!-- Encabezado Institucional -->
+    <header class="bg-slate-900 text-white p-6 rounded-xl shadow-md border-b-4 border-amber-500 mb-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4 text-center md:text-left">
+          <img src="https://admisiones.colegiomontano.edu.gt/assets/img/logo-cm-blanco.webp" alt="Colegio Montano" class="h-16 w-auto object-contain drop-shadow" onerror="this.onerror=null; this.src='https://placehold.co/200x80/0f172a/ffffff?text=Colegio+Montano';">
+          <div>
+            <h1 class="text-2xl font-black tracking-wide text-white uppercase">Colegio Montano</h1>
+            <p class="text-xs font-medium text-amber-400 tracking-wider uppercase">Departamento de Educación Secundaria y Bachillerato</p>
+            <p class="text-sm font-bold text-slate-200 mt-1">TRABAJO INDIVIDUAL 1 — CICLO ESCOLAR 2026</p>
+          </div>
+        </div>
+        <div class="text-right border-t md:border-t-0 md:border-l border-slate-700 pt-3 md:pt-0 md:pl-6 text-center md:text-right">
+          <span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+            Evaluación Cuantitativa
+          </span>
+          <p class="text-xs text-slate-400 mt-2">Ponderación Total:</p>
+          <p class="text-2xl font-black text-white">100 pts</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Datos del Estudiante y Guía -->
+    <section class="bg-slate-50 rounded-xl p-5 border border-slate-200 mb-8 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-2 bg-white p-3 rounded-lg border border-slate-200">
+          <label class="font-bold text-slate-700 whitespace-nowrap min-w-[150px]"><i class="fa-solid fa-user-graduate text-slate-500 mr-2"></i>Nombre del Estudiante:</label>
+          <input type="text" placeholder="Escriba su nombre completo aquí..." class="w-full bg-slate-50 border border-slate-300 rounded px-3 py-1.5 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-layer-group text-slate-500 mr-1.5"></i>Grado y Sección / Carrera:</span>
+          <input type="text" value="4to Bachillerato / 3ro Básico" class="w-full bg-transparent border-none font-semibold text-slate-800 focus:outline-none">
+        </div>
+
+        <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-calendar-day text-slate-500 mr-1.5"></i>Fecha:</span>
+          <input type="text" value="Septiembre 2026" class="w-full bg-transparent border-none font-semibold text-slate-800 focus:outline-none">
+        </div>
+
+        <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-book-bookmark text-slate-500 mr-1.5"></i>Curso:</span>
+          <span class="font-semibold text-blue-900">Física Fundamental</span>
+        </div>
+
+        <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-list-check text-slate-500 mr-1.5"></i>Tipo de Actividad:</span>
+          <span class="font-semibold text-blue-900">Trabajo Individual 1</span>
+        </div>
+
+        <div class="md:col-span-2 flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-bullseye text-slate-500 mr-1.5"></i>Tema Central:</span>
+          <span class="font-semibold text-amber-700">Tiro Parabólico (Movimiento en Dos Dimensiones)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Instrucciones Generales -->
+    <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl mb-8">
+      <h3 class="font-bold text-amber-900 text-sm flex items-center gap-2 uppercase tracking-wide">
+        <i class="fa-solid fa-circle-info text-amber-600"></i> Instrucciones Generales
+      </h3>
+      <p class="text-xs sm:text-sm text-amber-950 mt-1.5 leading-relaxed">
+        Lea detenidamente cada una de las preguntas y problemas presentados. La actividad consta de 3 series con un valor total de <strong>100 puntos</strong>. Para los ejercicios numéricos, incluya el procedimiento claro y ordenado, diagramas descriptivos y resalte la respuesta final con sus respectivas unidades de medida. Utilice la aceleración de la gravedad como \(g = 9.8 \text{ m/s}^2\).
+      </p>
+    </div>
+
+    <!-- SERIE I: SELECCIÓN MÚLTIPLE -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between bg-slate-800 text-white px-5 py-3 rounded-t-xl">
+        <h2 class="font-bold text-base sm:text-lg tracking-wide">
+          SERIE I: Selección Múltiple
+        </h2>
+        <span class="bg-slate-700 text-amber-300 font-extrabold text-xs px-3 py-1 rounded-md border border-slate-600">
+          5 Preguntas / 20 Puntos (4 pts c/u)
+        </span>
+      </div>
+      
+      <div class="p-5 border border-t-0 border-slate-200 rounded-b-xl space-y-6 bg-white">
+        
+        <!-- Pregunta 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <p class="font-semibold text-slate-800 text-sm mb-3">
+            1. En un tiro parabólico, ¿cuál de las siguientes afirmaciones respecto a la aceleración del proyectil es correcta durante todo su vuelo (despreciando la resistencia del aire)?
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p1" class="w-4 h-4 text-blue-600 mr-2.5">
+              a) Varía en magnitud según la posición del proyectil.
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p1" class="w-4 h-4 text-blue-600 mr-2.5">
+              b) Es cero en el punto de altura máxima.
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p1" class="w-4 h-4 text-blue-600 mr-2.5">
+              c) Es constante y dirigida hacia abajo con magnitud \(g = 9.8 \text{ m/s}^2\).
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p1" class="w-4 h-4 text-blue-600 mr-2.5">
+              d) Es tangente a la trayectoria parabólica en todo instante.
+            </label>
+          </div>
+        </div>
+
+        <!-- Pregunta 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <p class="font-semibold text-slate-800 text-sm mb-3">
+            2. ¿Qué ocurre con la componente horizontal de la velocidad (\(v_x\)) de un proyectil en un tiro parabólico en ausencia de fricción con el aire?
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p2" class="w-4 h-4 text-blue-600 mr-2.5">
+              a) Aumenta proporcionalmente con el tiempo.
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p2" class="w-4 h-4 text-blue-600 mr-2.5">
+              b) Permanece constante durante todo el recorrido.
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p2" class="w-4 h-4 text-blue-600 mr-2.5">
+              c) Se reduce a cero al llegar al punto más alto.
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p2" class="w-4 h-4 text-blue-600 mr-2.5">
+              d) Disminuye al subir y aumenta al descender.
+            </label>
+          </div>
+        </div>
+
+        <!-- Pregunta 3 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <p class="font-semibold text-slate-800 text-sm mb-3">
+            3. Para un proyectil lanzado desde el suelo con una rapidez inicial constante \(v_0\), ¿con qué ángulo de elevación \(\theta\) se logra el máximo alcance horizontal (\(R_{máx}\))?
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-medium text-slate-700">
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p3" class="w-4 h-4 text-blue-600 mr-2.5">
+              a) \(\theta = 30^\circ\)
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p3" class="w-4 h-4 text-blue-600 mr-2.5">
+              b) \(\theta = 45^\circ\)
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p3" class="w-4 h-4 text-blue-600 mr-2.5">
+              c) \(\theta = 60^\circ\)
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p3" class="w-4 h-4 text-blue-600 mr-2.5">
+              d) \(\theta = 90^\circ\)
+            </label>
+          </div>
+        </div>
+
+        <!-- Pregunta 4 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <p class="font-semibold text-slate-800 text-sm mb-3">
+            4. En la cúspide de la trayectoria de un proyectil (altura máxima), la componente vertical de la velocidad (\(v_y\)) es:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p4" class="w-4 h-4 text-blue-600 mr-2.5">
+              a) Igual a la rapidez de lanzamiento \(v_0\).
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p4" class="w-4 h-4 text-blue-600 mr-2.5">
+              b) Igual a la componente horizontal \(v_x\).
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p4" class="w-4 h-4 text-blue-600 mr-2.5">
+              c) Cero (\(0 \text{ m/s}\)).
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p4" class="w-4 h-4 text-blue-600 mr-2.5">
+              d) Igual a la magnitud de la aceleración gravitacional.
+            </label>
+          </div>
+        </div>
+
+        <!-- Pregunta 5 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <p class="font-semibold text-slate-800 text-sm mb-3">
+            5. Un proyectil es lanzado con un ángulo de \(30^\circ\) y otro con un ángulo de \(60^\circ\) con la misma velocidad inicial. Al comparar sus alcances horizontales finales sobre el mismo plano:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p5" class="w-4 h-4 text-blue-600 mr-2.5">
+              a) El alcance es mayor para el ángulo de \(60^\circ\).
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p5" class="w-4 h-4 text-blue-600 mr-2.5">
+              b) El alcance es mayor para el ángulo de \(30^\circ\).
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p5" class="w-4 h-4 text-blue-600 mr-2.5">
+              c) Ambos proyectiles tienen exactamente el mismo alcance horizontal.
+            </label>
+            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-all">
+              <input type="radio" name="p5" class="w-4 h-4 text-blue-600 mr-2.5">
+              d) No se puede determinar sin conocer la masa de los proyectiles.
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SERIE II: FALSO Y VERDADERO CON JUSTIFICACIÓN -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between bg-slate-800 text-white px-5 py-3 rounded-t-xl">
+        <h2 class="font-bold text-base sm:text-lg tracking-wide">
+          SERIE II: Falso y Verdadero con Justificación
+        </h2>
+        <span class="bg-slate-700 text-amber-300 font-extrabold text-xs px-3 py-1 rounded-md border border-slate-600">
+          5 Preguntas / 20 Puntos (4 pts c/u)
+        </span>
+      </div>
+
+      <div class="p-5 border border-t-0 border-slate-200 rounded-b-xl space-y-6 bg-white">
+        <p class="text-xs text-slate-500 font-medium italic">
+          * Marque con una (V) o (F) y escriba la justificación teórica correspondiente en el cuadro de texto.
+        </p>
+
+        <!-- Pregunta 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <p class="font-semibold text-slate-800 text-sm">
+              1. En el punto de altura máxima de un tiro parabólico, la velocidad vectorial total del objeto es exactamente igual a cero.
+            </p>
+            <div class="flex items-center gap-3 shrink-0">
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv1" value="V" class="mr-1 text-blue-600"> ( V )
+              </label>
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv1" value="F" class="mr-1 text-blue-600"> ( F )
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Justificación:</label>
+            <textarea placeholder="Escriba su justificación física aquí..." class="auto-expand w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Pregunta 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <p class="font-semibold text-slate-800 text-sm">
+              2. El movimiento parabólico es un movimiento compuesto por un MRU en el eje horizontal (X) y un MRUA en el eje vertical (Y).
+            </p>
+            <div class="flex items-center gap-3 shrink-0">
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv2" value="V" class="mr-1 text-blue-600"> ( V )
+              </label>
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv2" value="F" class="mr-1 text-blue-600"> ( F )
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Justificación:</label>
+            <textarea placeholder="Escriba su justificación física aquí..." class="auto-expand w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Pregunta 3 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <p class="font-semibold text-slate-800 text-sm">
+              3. El tiempo total de permanencia en el aire depende única y exclusivamente de la componente horizontal de la velocidad inicial (\(v_{0x}\)).
+            </p>
+            <div class="flex items-center gap-3 shrink-0">
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv3" value="V" class="mr-1 text-blue-600"> ( V )
+              </label>
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv3" value="F" class="mr-1 text-blue-600"> ( F )
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Justificación:</label>
+            <textarea placeholder="Escriba su justificación física aquí..." class="auto-expand w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Pregunta 4 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <p class="font-semibold text-slate-800 text-sm">
+              4. Dos proyectiles lanzados con la misma velocidad inicial pero con ángulos complementarios (\(\theta_1 + \theta_2 = 90^\circ\)) alcanzan exactamente la misma altura máxima.
+            </p>
+            <div class="flex items-center gap-3 shrink-0">
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv4" value="V" class="mr-1 text-blue-600"> ( V )
+              </label>
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv4" value="F" class="mr-1 text-blue-600"> ( F )
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Justificación:</label>
+            <textarea placeholder="Escriba su justificación física aquí..." class="auto-expand w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Pregunta 5 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <p class="font-semibold text-slate-800 text-sm">
+              5. En un terreno plano, la rapidez con la que un proyectil impacta contra el suelo es de la misma magnitud con la que fue originalmente lanzado.
+            </p>
+            <div class="flex items-center gap-3 shrink-0">
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv5" value="V" class="mr-1 text-blue-600"> ( V )
+              </label>
+              <label class="flex items-center text-xs font-bold text-slate-700 cursor-pointer">
+                <input type="radio" name="fv5" value="F" class="mr-1 text-blue-600"> ( F )
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Justificación:</label>
+            <textarea placeholder="Escriba su justificación física aquí..." class="auto-expand w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SERIE III: PROBLEMAS DE DESARROLLO Y PROCEDIMIENTO -->
+    <section class="mb-10 page-break">
+      <div class="flex items-center justify-between bg-slate-800 text-white px-5 py-3 rounded-t-xl">
+        <h2 class="font-bold text-base sm:text-lg tracking-wide">
+          SERIE III: Resolución de Problemas con Procedimiento
+        </h2>
+        <span class="bg-slate-700 text-amber-300 font-extrabold text-xs px-3 py-1 rounded-md border border-slate-600">
+          3 Problemas / 60 Puntos (20 pts c/u)
+        </span>
+      </div>
+
+      <div class="p-5 border border-t-0 border-slate-200 rounded-b-xl space-y-8 bg-white">
+        
+        <!-- Problema 1 -->
+        <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div class="bg-blue-900 text-white p-3 rounded-lg flex items-center justify-between text-xs font-bold">
+            <span><i class="fa-solid fa-calculator mr-2"></i> PROBLEMA 1</span>
+            <span class="bg-blue-800 px-2.5 py-1 rounded text-amber-300">Valor: 20 Puntos</span>
+          </div>
+          <p class="text-sm text-slate-800 leading-relaxed font-medium">
+            Un cañón de artillería dispara un proyectil con una velocidad inicial \(v_0 = 40 \text{ m/s}\) a un ángulo de elevación de \(\theta = 35^\circ\) sobre el nivel del suelo horizontal. 
+            <br><span class="text-xs text-slate-600 font-semibold">(Tome \(g = 9.8 \text{ m/s}^2\))</span>
+          </p>
+          <ul class="list-disc list-inside text-xs font-semibold text-slate-700 space-y-1">
+            <li>a) Calcule las componentes rectangular iniciales de la velocidad: \(v_{0x}\) y \(v_{0y}\).</li>
+            <li>b) Determine el tiempo total de vuelo (\(t_{vuelo}\)) del proyectil.</li>
+            <li>c) Determine el alcance horizontal máximo (\(R\)) que logra el proyectil.</li>
+          </ul>
+
+          <div class="bg-white p-4 rounded-xl border border-slate-300">
+            <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">
+              <i class="fa-solid fa-pen-ruler text-blue-600 mr-1.5"></i> Espacio para procedimiento detallado y respuesta:
+            </label>
+            <textarea placeholder="Escriba el procedimiento paso a paso aquí (Fórmulas utilizadas, sustitución y resultado final con unidades)..." class="auto-expand w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[140px]"></textarea>
+          </div>
+        </div>
+
+        <!-- Problema 2 -->
+        <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div class="bg-blue-900 text-white p-3 rounded-lg flex items-center justify-between text-xs font-bold">
+            <span><i class="fa-solid fa-calculator mr-2"></i> PROBLEMA 2</span>
+            <span class="bg-blue-800 px-2.5 py-1 rounded text-amber-300">Valor: 20 Puntos</span>
+          </div>
+          <p class="text-sm text-slate-800 leading-relaxed font-medium">
+            Un balón de fútbol es pateado con un ángulo de \(\theta = 40^\circ\) respecto al suelo. Si la altura máxima alcanzada por el balón es de \(H_{máx} = 12.5 \text{ m}\):
+          </p>
+          <ul class="list-disc list-inside text-xs font-semibold text-slate-700 space-y-1">
+            <li>a) Encuentre el valor de la velocidad inicial de lanzamiento (\(v_0\)).</li>
+            <li>b) Calcule el tiempo que le toma alcanzar la altura máxima (\(t_{subida}\)).</li>
+            <li>c) Calcule la velocidad del balón (magnitud y ángulo) cuando ha transcurrido \(t = 1.0 \text{ s}\) desde el lanzamiento.</li>
+          </ul>
+
+          <div class="bg-white p-4 rounded-xl border border-slate-300">
+            <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">
+              <i class="fa-solid fa-pen-ruler text-blue-600 mr-1.5"></i> Espacio para procedimiento detallado y respuesta:
+            </label>
+            <textarea placeholder="Escriba el procedimiento paso a paso aquí (Fórmulas utilizadas, sustitución y resultado final con unidades)..." class="auto-expand w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[140px]"></textarea>
+          </div>
+        </div>
+
+        <!-- Problema 3 -->
+        <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div class="bg-blue-900 text-white p-3 rounded-lg flex items-center justify-between text-xs font-bold">
+            <span><i class="fa-solid fa-calculator mr-2"></i> PROBLEMA 3 (Lanzamiento Horizontal)</span>
+            <span class="bg-blue-800 px-2.5 py-1 rounded text-amber-300">Valor: 20 Puntos</span>
+          </div>
+          <p class="text-sm text-slate-800 leading-relaxed font-medium">
+            Desde la cima de un acantilado de \(45 \text{ m}\) de altura sobre el nivel del mar, se dispara horizontalmente un proyectil con una velocidad inicial \(v_{0x} = 25 \text{ m/s}\).
+          </p>
+          <ul class="list-disc list-inside text-xs font-semibold text-slate-700 space-y-1">
+            <li>a) ¿Cuánto tiempo tarda el proyectil en caer e impactar contra el agua?</li>
+            <li>b) ¿A qué distancia horizontal desde la base del acantilado cae el proyectil?</li>
+            <li>c) ¿Cuál es la magnitud y dirección de la velocidad del proyectil justo antes de tocar el agua?</li>
+          </ul>
+
+          <div class="bg-white p-4 rounded-xl border border-slate-300">
+            <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">
+              <i class="fa-solid fa-pen-ruler text-blue-600 mr-1.5"></i> Espacio para procedimiento detallado y respuesta:
+            </label>
+            <textarea placeholder="Escriba el procedimiento paso a paso aquí (Fórmulas utilizadas, sustitución y resultado final con unidades)..." class="auto-expand w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[140px]"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Pie de Página Institucional -->
+    <footer class="mt-8 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <p>© 2026 Colegio Montano — Material Educativo Oficial</p>
+      <p class="font-medium text-slate-600">Física Fundamental | Excelencia Académica</p>
+    </footer>
+
+  </div>
+
+  <script>
+    /* Auto-Expand Textareas Logic */
+    function setupAutoExpand() {
+      const textareas = document.querySelectorAll('textarea.auto-expand');
+      textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = (this.scrollHeight) + 'px';
+        });
+      });
+    }
+
+    /* Strict Copy/Paste Prevention and Toast Alert */
+    function setupAntiCheatRestrictions() {
+      const toast = document.getElementById('toast-restriction');
+      let toastTimeout = null;
+
+      function triggerToast() {
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toast.classList.add('show');
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3500);
+      }
+
+      // Restrict Events
+      const restrictedEvents = ['paste', 'copy', 'cut', 'contextmenu'];
+      
+      restrictedEvents.forEach(eventType => {
+        document.addEventListener(eventType, function(e) {
+          e.preventDefault();
+          triggerToast();
+          return false;
+        });
+      });
+    }
+
+    /* PDF Exporting Function using html2pdf.js */
+    function exportToPDF() {
+      const element = document.getElementById('document-content');
+      
+      // Configuration for high quality letter portrait PDF
+      const options = {
+        margin:       [0.3, 0.3, 0.3, 0.3],
+        filename:     'Colegio_Montano_Fisica_Tiro_Parabolico.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(options).from(element).save();
+    }
+
+    /* Initialization on Window Load */
+    window.onload = function() {
+      setupAutoExpand();
+      setupAntiCheatRestrictions();
+    };
+  </script>
+
+</body>
+</html>
